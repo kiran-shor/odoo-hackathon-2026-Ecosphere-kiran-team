@@ -20,16 +20,20 @@ export default function App() {
   return (
     <UserProvider>
       <BrowserRouter>
-        <Navbar routes={allRoutes} />
-        <Routes>
-          {allRoutes.map((route) => (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={route.element}
-            />
-          ))}
-        </Routes>
+        <div className="app-shell">
+          <Navbar routes={allRoutes} />
+          <div className="app-main">
+            <Routes>
+              {allRoutes.map((route) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={route.element}
+                />
+              ))}
+            </Routes>
+          </div>
+        </div>
       </BrowserRouter>
     </UserProvider>
   );
