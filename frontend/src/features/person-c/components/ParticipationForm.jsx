@@ -46,9 +46,18 @@ export default function ParticipationForm({ activities, employeeId, onSubmitted 
 
       <ErrorMessage message={error} />
 
+      {!employeeId && (
+        <p className="empty-state">Select an employee before submitting.</p>
+      )}
+
+      {activities.length === 0 && (
+        <p className="empty-state">No active activities are available yet.</p>
+      )}
+
       <label>
         Activity
         <select
+          disabled={activities.length === 0 || submitting}
           value={activityId}
           onChange={(event) => setActivityId(Number(event.target.value))}
           required
@@ -65,6 +74,7 @@ export default function ParticipationForm({ activities, employeeId, onSubmitted 
       <label>
         Proof text or URL
         <textarea
+          disabled={submitting}
           rows="4"
           value={proof}
           onChange={(event) => setProof(event.target.value)}
@@ -75,7 +85,13 @@ export default function ParticipationForm({ activities, employeeId, onSubmitted 
 
       <button
         type="submit"
-        disabled={submitting || !employeeId || !activityId || !proof.trim()}
+        disabled={
+          submitting ||
+          !employeeId ||
+          !activityId ||
+          !proof.trim() ||
+          activities.length === 0
+        }
       >
         {submitting ? 'Submitting...' : 'Submit for approval'}
       </button>

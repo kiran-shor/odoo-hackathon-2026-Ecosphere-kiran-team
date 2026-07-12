@@ -7,13 +7,22 @@ export default function ScoreGauge({ label, value }) {
       <div
         className="score-ring"
         style={{
-          background: `conic-gradient(#2f855a ${clampedScore * 3.6}deg, #d7e2dd 0deg)`,
+          background: `conic-gradient(#14b8a6 ${clampedScore * 3.6}deg, #e7eef3 0deg)`,
         }}
         aria-label={`${label}: ${Math.round(clampedScore)}`}
       >
         <span>{Math.round(clampedScore)}</span>
       </div>
-      <p>{label}</p>
+      <div>
+        <p>{label}</p>
+        <small>{getScoreLabel(clampedScore)}</small>
+      </div>
     </article>
   );
+}
+
+function getScoreLabel(score) {
+  if (score >= 75) return 'Strong';
+  if (score >= 45) return 'Stable';
+  return 'Needs focus';
 }
