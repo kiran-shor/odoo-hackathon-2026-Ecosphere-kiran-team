@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import CSRActivities from './pages/CSRActivities';
 import Participation from './pages/Participation';
 import Leaderboard from './pages/Leaderboard';

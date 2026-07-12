@@ -20,20 +20,23 @@ export default function CSRActivities() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const loadActivities = useCallback(async () => {
-    setLoading(true);
-    setError('');
+  const fetchActivities = useCallback(async () => {
+    const { data } = await client.get('/activities');
+    return data;
+  }, []);
 
+  async function loadActivities() {
     try {
-      const { data } = await client.get('/activities');
+      const data = await fetchActivities();
       setActivities(data);
+      setError('');
     } catch (err) {
       setError(getErrorMessage(err));
       setActivities(mockActivities);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }
 
   async function createActivity(body) {
     setSubmitting(true);
@@ -53,8 +56,23 @@ export default function CSRActivities() {
   }
 
   useEffect(() => {
-    loadActivities();
-  }, [loadActivities]);
+    async function loadActivitiesPage() {
+      setLoading(true);
+
+      try {
+        const data = await fetchActivities();
+        setActivities(data);
+        setError('');
+      } catch (err) {
+        setError(getErrorMessage(err));
+        setActivities(mockActivities);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadActivitiesPage();
+  }, [fetchActivities]);
 
   return (
     <main className="page">

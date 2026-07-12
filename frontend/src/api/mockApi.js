@@ -1,5 +1,7 @@
 let nextCarbonTransactionId = 4;
 let nextPolicyId = 4;
+let nextActivityId = 4;
+let nextParticipationId = 3;
 
 const departments = [
   { id: 1, name: 'Operations', code: 'OPS' },
@@ -121,6 +123,107 @@ const departmentScores = [
   },
 ];
 
+const badges = [
+  {
+    id: 1,
+    name: 'Policy Champion',
+    description: 'Acknowledged key governance policies',
+    icon: 'Shield',
+  },
+  {
+    id: 2,
+    name: 'Carbon Tracker',
+    description: 'Recorded emissions activity consistently',
+    icon: 'Leaf',
+  },
+  {
+    id: 3,
+    name: 'CSR Champion',
+    description: 'Completed approved CSR participation',
+    icon: 'Trophy',
+  },
+];
+
+const activities = [
+  {
+    id: 1,
+    title: 'Tree Plantation Drive',
+    category: 'Environment',
+    description: 'Plant saplings around the campus',
+    departmentId: 1,
+    pointsReward: 30,
+    status: 'active',
+  },
+  {
+    id: 2,
+    title: 'Community Clean-up',
+    category: 'Community',
+    description: 'Clean a local public space with your department',
+    departmentId: 2,
+    pointsReward: 25,
+    status: 'active',
+  },
+  {
+    id: 3,
+    title: 'Mentorship Hour',
+    category: 'Social',
+    description: 'Volunteer one hour to mentor a junior teammate',
+    departmentId: 3,
+    pointsReward: 20,
+    status: 'active',
+  },
+];
+
+const participation = [
+  {
+    id: 1,
+    employeeId: 2,
+    employeeName: 'Isha Rao',
+    activityId: 1,
+    activityTitle: 'Tree Plantation Drive',
+    proof: 'drive-photo-link',
+    status: 'pending',
+    createdAt: '2026-07-12T09:00:00Z',
+  },
+  {
+    id: 2,
+    employeeId: 3,
+    employeeName: 'Kabir Sen',
+    activityId: 2,
+    activityTitle: 'Community Clean-up',
+    proof: 'https://example.com/cleanup-proof',
+    status: 'pending',
+    createdAt: '2026-07-12T10:30:00Z',
+  },
+];
+
+const rewards = [
+  {
+    id: 1,
+    name: 'Company Merch Kit',
+    description: 'Branded swag bag',
+    pointsRequired: 100,
+    stock: 20,
+    status: 'active',
+  },
+  {
+    id: 2,
+    name: 'Cafe Voucher',
+    description: 'Reusable cup plus cafeteria credit',
+    pointsRequired: 250,
+    stock: 8,
+    status: 'active',
+  },
+  {
+    id: 3,
+    name: 'Green Commute Pass',
+    description: 'Subsidized public transport pass',
+    pointsRequired: 500,
+    stock: 0,
+    status: 'active',
+  },
+];
+
 export async function mockAdapter(config) {
   await delay(180);
 
@@ -215,9 +318,60 @@ export async function mockAdapter(config) {
       return ok(config, createCsvBlob(getReportRows()));
     }
 
+    if (method === 'get' && path === '/activities') {
+      return ok(config, activities);
+    }
+
+    if (method === 'post' && path === '/activities') {
+      const activity = createActivity(body);
+      activities.unshift(activity);
+      return ok(config, activity, 201);
+    }
+
+    if (method === 'post' && path === '/participation') {
+      const item = createParticipation(body);
+      participation.unshift(item);
+      return ok(config, item, 201);
+    }
+
+    if (method === 'get' && path === '/participation') {
+      const status = getQueryParam(config, 'status');
+      const items = status
+        ? participation.filter((item) => item.status === status)
+        : participation;
+      return ok(config, items);
+    }
+
+    if (method === 'patch' && path.match(/^\/participation\/\d+\/approve$/)) {
+      const participationId = Number(path.split('/')[2]);
+      return ok(config, approveParticipation(participationId));
+    }
+
+    if (method === 'patch' && path.match(/^\/participation\/\d+\/reject$/)) {
+      const participationId = Number(path.split('/')[2]);
+      return ok(config, rejectParticipation(participationId));
+    }
+
+    if (method === 'get' && path === '/badges') {
+      return ok(config, badges);
+    }
+
+    if (method === 'get' && path === '/leaderboard') {
+      return ok(config, getLeaderboard());
+    }
+
+    if (method === 'get' && path === '/rewards') {
+      return ok(config, rewards.filter((reward) => reward.status === 'active'));
+    }
+
+    if (method === 'post' && path.match(/^\/rewards\/\d+\/redeem$/)) {
+      const rewardId = Number(path.split('/')[2]);
+      return ok(config, redeemReward(rewardId, body));
+    }
+
     return notFound(config, 'Mock endpoint not found');
   } catch (err) {
-    return error(config, err.message || 'Mock API error');
+    return error(config, err.message || 'Mock API error', err.status || 500);
   }
 }
 
@@ -302,6 +456,148 @@ function getReportRows() {
   });
 }
 
+function createActivity(body) {
+  const activity = {
+    id: nextActivityId,
+    title: body.title,
+    category: body.category,
+    description: body.description,
+    departmentId: Number(body.departmentId),
+    pointsReward: Number(body.pointsReward),
+    status: 'active',
+  };
+
+  nextActivityId += 1;
+  return activity;
+}
+
+function createParticipation(body) {
+  const employee = employees.find((item) => item.id === Number(body.employeeId));
+  const activity = activities.find((item) => item.id === Number(body.activityId));
+
+  if (!employee) {
+    throw createMockError('Employee not found', 404);
+  }
+
+  if (!activity) {
+    throw createMockError('Activity not found', 404);
+  }
+
+  const item = {
+    id: nextParticipationId,
+    employeeId: employee.id,
+    employeeName: employee.name,
+    activityId: activity.id,
+    activityTitle: activity.title,
+    proof: body.proof,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+  };
+
+  nextParticipationId += 1;
+  return item;
+}
+
+function approveParticipation(participationId) {
+  const item = participation.find((entry) => entry.id === participationId);
+
+  if (!item) {
+    throw createMockError('Participation not found', 404);
+  }
+
+  const employee = employees.find((entry) => entry.id === item.employeeId);
+  const activity = activities.find((entry) => entry.id === item.activityId);
+
+  if (!employee || !activity) {
+    throw createMockError('Participation data is incomplete');
+  }
+
+  item.status = 'approved';
+  employee.points += Number(activity.pointsReward);
+
+  if (!employee.badges.includes('CSR Champion')) {
+    employee.badges.push('CSR Champion');
+  }
+
+  return item;
+}
+
+function rejectParticipation(participationId) {
+  const item = participation.find((entry) => entry.id === participationId);
+
+  if (!item) {
+    throw createMockError('Participation not found', 404);
+  }
+
+  item.status = 'rejected';
+  return item;
+}
+
+function getLeaderboard() {
+  return [...employees]
+    .sort((first, second) => second.points - first.points)
+    .slice(0, 20)
+    .map((employee) => ({
+      ...employee,
+      departmentName: getDepartmentName(employee.departmentId),
+      badges: getEmployeeBadges(employee),
+    }));
+}
+
+function redeemReward(rewardId, body) {
+  const reward = rewards.find((item) => item.id === rewardId);
+  const employee = employees.find((item) => item.id === Number(body.employeeId));
+
+  if (!reward) {
+    throw createMockError('Reward not found', 404);
+  }
+
+  if (!employee) {
+    throw createMockError('Employee not found', 404);
+  }
+
+  if (reward.stock === 0) {
+    throw createMockError('Out of stock', 400);
+  }
+
+  if (employee.points < reward.pointsRequired) {
+    throw createMockError('Not enough points', 400);
+  }
+
+  employee.points -= reward.pointsRequired;
+  reward.stock -= 1;
+
+  return {
+    id: `${reward.id}-${employee.id}-${Date.now()}`,
+    rewardId: reward.id,
+    employeeId: employee.id,
+    pointsSpent: reward.pointsRequired,
+    redeemedAt: new Date().toISOString(),
+  };
+}
+
+function getDepartmentName(departmentId) {
+  return (
+    departments.find((department) => department.id === departmentId)?.name ||
+    'Unknown'
+  );
+}
+
+function getEmployeeBadges(employee) {
+  return employee.badges.map((badgeName, index) => {
+    const badge = badges.find((item) => item.name === badgeName);
+
+    return (
+      badge || {
+        id: 100 + index,
+        name: badgeName,
+        description: '',
+        icon: 'Badge',
+      }
+    );
+  });
+}
+
 function createCsvBlob(rows) {
   const columns = Object.keys(rows[0] || {});
   const csvRows = [
@@ -319,10 +615,25 @@ function normalizePath(url = '') {
   return parsedUrl.pathname.replace(/^\/api/, '');
 }
 
+function getQueryParam(config, key) {
+  if (config.params?.[key]) {
+    return config.params[key];
+  }
+
+  const parsedUrl = new URL(config.url || '', 'http://mock.local');
+  return parsedUrl.searchParams.get(key);
+}
+
 function parseBody(data) {
   if (!data) return {};
   if (typeof data === 'string') return JSON.parse(data);
   return data;
+}
+
+function createMockError(message, status = 500) {
+  const err = new Error(message);
+  err.status = status;
+  return err;
 }
 
 function ok(config, data, status = 200) {
