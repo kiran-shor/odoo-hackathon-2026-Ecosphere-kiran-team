@@ -1,32 +1,27 @@
-const TemporaryPage = ({ title }) => (
-  <main className="page">
-    <section className="page-header">
-      <p className="eyebrow">Person C</p>
-      <h1>{title}</h1>
-    </section>
-    <p className="muted">This route is reserved for the Person C feature branch.</p>
-  </main>
-);
+import CSRActivities from './pages/CSRActivities';
+import Participation from './pages/Participation';
+import Leaderboard from './pages/Leaderboard';
+import Rewards from './pages/Rewards';
 
 export const personCRoutes = [
   {
     path: '/activities',
-    element: <TemporaryPage title="CSR Activities" />,
+    element: <CSRActivities />,
     label: 'CSR Activities',
   },
   {
     path: '/participation',
-    element: <TemporaryPage title="Participation" />,
+    element: <Participation />,
     label: 'Participation',
   },
   {
     path: '/leaderboard',
-    element: <TemporaryPage title="Leaderboard" />,
+    element: <Leaderboard />,
     label: 'Leaderboard',
   },
   {
     path: '/rewards',
-    element: <TemporaryPage title="Rewards" />,
+    element: <Rewards />,
     label: 'Rewards',
   },
 ];
