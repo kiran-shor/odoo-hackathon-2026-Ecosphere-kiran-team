@@ -59,7 +59,8 @@ select:disabled {
 .header-tools,
 .nav-links,
 .field-inline,
-.admin-toggle {
+.admin-toggle,
+.api-mode-toggle {
   align-items: center;
   display: flex;
 }
@@ -114,11 +115,13 @@ select:disabled {
 }
 
 .field-inline,
-.admin-toggle {
+.admin-toggle,
+.api-mode-toggle {
   gap: 0.45rem;
 }
 
 .field-inline select,
+.api-mode-toggle select,
 label select,
 label input,
 label textarea {
@@ -126,6 +129,12 @@ label textarea {
   border-radius: 6px;
   color: #1f2933;
   padding: 0.6rem 0.7rem;
+}
+
+.api-mode-toggle span {
+  color: #68776d;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .points-pill {

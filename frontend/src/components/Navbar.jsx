@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import ApiModeToggle from './ApiModeToggle';
 import EmployeeSwitcher from './EmployeeSwitcher';
 import { useUser } from '../context/UserContext';
 
@@ -29,6 +30,7 @@ export default function Navbar({ routes }) {
       </nav>
 
       <div className="header-tools">
+        <ApiModeToggle />
         <EmployeeSwitcher />
         <label className="admin-toggle">
           <input
