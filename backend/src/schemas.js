@@ -33,10 +33,40 @@ const employeeIdSchema = z.object({
   employeeId: id,
 });
 
+const date = z.string().refine((value) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
+}, "Use a valid date in YYYY-MM-DD format");
+const goalSchema = z
+  .object({
+    departmentId: id,
+    emissionFactorId: id.nullable().optional(),
+    metricLabel: z.string().trim().min(2).max(180),
+    targetValue: z.coerce.number().positive("Target must be greater than 0"),
+    unit: z.string().trim().min(1).max(40),
+    startDate: date,
+    deadline: date,
+  })
+  .refine((goal) => goal.deadline >= goal.startDate, {
+    message: "Deadline must be on or after the start date",
+    path: ["deadline"],
+  });
+
+const goalUpdateSchema = z
+  .object({
+    targetValue: z.coerce.number().positive("Target must be greater than 0").optional(),
+    deadline: date.optional(),
+    status: z.enum(["active", "inactive"]).optional(),
+  })
+  .refine((update) => Object.keys(update).length > 0, "Provide at least one field to update");
+
 module.exports = {
   activitySchema,
   carbonTransactionSchema,
   employeeIdSchema,
+  goalSchema,
+  goalUpdateSchema,
   participationSchema,
   policySchema,
 };

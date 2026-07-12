@@ -6,12 +6,14 @@ import Dashboard from './pages/Dashboard';
 import CarbonEntry from './pages/CarbonEntry';
 import Policies from './pages/Policies';
 import Reports from './pages/Reports';
+import Goals from './pages/Goals';
 import { personCRoutes } from './features/person-c/routes';
 
 const personBRoutes = [
   { path: '/', element: <Dashboard />, label: 'Dashboard', group: 'Overview' },
   { path: '/carbon', element: <CarbonEntry />, label: 'Carbon', group: 'Measure' },
   { path: '/reports', element: <Reports />, label: 'Reports', group: 'Measure' },
+  { path: '/goals', element: <Goals />, label: 'Goals', group: 'Measure' },
   { path: '/policies', element: <Policies />, label: 'Policies', group: 'Govern' },
 ];
 

@@ -2,6 +2,7 @@ const express = require("express");
 const {
   createCarbonTransaction,
   getCarbonSummary,
+  getCarbonTrend,
   listCarbonTransactions,
 } = require("../controllers/carbonController");
 const { validate } = require("../middleware/validate");
@@ -14,5 +15,7 @@ router.post("/", validate(carbonTransactionSchema), createCarbonTransaction);
 router.get("/", listCarbonTransactions);
 
 router.get("/summary", getCarbonSummary);
+
+router.get("/trend", getCarbonTrend);
 
 module.exports = router;

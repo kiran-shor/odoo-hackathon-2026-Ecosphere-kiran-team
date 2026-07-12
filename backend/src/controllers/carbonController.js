@@ -79,8 +79,41 @@ async function getCarbonSummary(req, res, next) {
   }
 }
 
+async function getCarbonTrend(req, res, next) {
+  try {
+    const groupBy = req.query.groupBy || "month";
+    if (!new Set(["month", "year"]).has(groupBy)) {
+      throw httpError(400, "groupBy must be month or year");
+    }
+
+    const params = [];
+    let where = "";
+    if (req.query.departmentId) {
+      const departmentId = Number(req.query.departmentId);
+      if (!Number.isInteger(departmentId) || departmentId <= 0) {
+        throw httpError(400, "Invalid departmentId");
+      }
+      where = "where department_id = ?";
+      params.push(departmentId);
+    }
+
+    const periodFormat = groupBy === "year" ? "%Y" : "%Y-%m";
+    const [rows] = await pool.query(
+      `select date_format(txn_date, '${periodFormat}') as period,
+        sum(co2_calculated) as totalCO2
+       from carbon_transactions ${where}
+       group by period order by period`,
+      params,
+    );
+    res.json(rows.map((row) => ({ period: row.period, totalCO2: Number(row.totalCO2) })));
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createCarbonTransaction,
   getCarbonSummary,
+  getCarbonTrend,
   listCarbonTransactions,
 };

@@ -2,6 +2,7 @@ let nextCarbonTransactionId = 4;
 let nextPolicyId = 4;
 let nextActivityId = 4;
 let nextParticipationId = 3;
+let nextGoalId = 4;
 
 const departments = [
   { id: 1, name: 'Operations', code: 'OPS' },
@@ -69,6 +70,24 @@ const carbonTransactions = [
     quantity: 55,
     date: '2026-07-10',
     co2Calculated: 23.1,
+  },
+];
+
+const environmentalGoals = [
+  {
+    id: 1, departmentId: 1, emissionFactorId: null,
+    metricLabel: 'Total Carbon Emissions', unit: 'kg CO2e', targetValue: 250,
+    startDate: '2026-01-01', deadline: '2026-12-31', status: 'active',
+  },
+  {
+    id: 2, departmentId: 2, emissionFactorId: 2,
+    metricLabel: 'Business Travel', unit: 'km', targetValue: 300,
+    startDate: '2026-01-01', deadline: '2026-12-31', status: 'active',
+  },
+  {
+    id: 3, departmentId: 3, emissionFactorId: null,
+    metricLabel: 'Total Carbon Emissions', unit: 'kg CO2e', targetValue: 100,
+    startDate: '2026-01-01', deadline: '2026-12-31', status: 'active',
   },
 ];
 
@@ -266,10 +285,45 @@ export async function mockAdapter(config) {
       return ok(config, getCarbonSummary());
     }
 
+    if (method === 'get' && path === '/carbon-transactions/trend') {
+      return ok(config, getCarbonTrend(config));
+    }
+
     if (method === 'post' && path === '/carbon-transactions') {
       const transaction = createCarbonTransaction(body);
       carbonTransactions.unshift(transaction);
       return ok(config, transaction, 201);
+    }
+
+    if (method === 'get' && path === '/environmental-goals') {
+      const departmentId = Number(getQueryParam(config, 'departmentId'));
+      const goals = departmentId
+        ? environmentalGoals.filter((goal) => goal.departmentId === departmentId)
+        : environmentalGoals;
+      return ok(config, goals.map(getGoalResponse));
+    }
+
+    if (method === 'post' && path === '/environmental-goals') {
+      const goal = { ...body, id: nextGoalId, status: 'active' };
+      nextGoalId += 1;
+      environmentalGoals.push(goal);
+      return ok(config, getGoalResponse(goal), 201);
+    }
+
+    if (method === 'patch' && path.match(/^\/environmental-goals\/\d+$/)) {
+      const goalId = Number(path.split('/')[2]);
+      const goal = environmentalGoals.find((item) => item.id === goalId);
+      if (!goal) return notFound(config, 'Goal not found');
+      Object.assign(goal, body);
+      return ok(config, { message: 'Goal updated', id: goalId });
+    }
+
+    if (method === 'delete' && path.match(/^\/environmental-goals\/\d+$/)) {
+      const goalId = Number(path.split('/')[2]);
+      const index = environmentalGoals.findIndex((item) => item.id === goalId);
+      if (index < 0) return notFound(config, 'Goal not found');
+      environmentalGoals.splice(index, 1);
+      return ok(config, { message: 'Goal deleted' });
     }
 
     if (method === 'get' && path === '/policies') {
@@ -410,6 +464,61 @@ function getCarbonSummary() {
       totalCO2: Number(totalCO2.toFixed(2)),
     };
   });
+}
+
+function getCarbonTrend(config) {
+  const departmentId = Number(getQueryParam(config, 'departmentId'));
+  const groupBy = getQueryParam(config, 'groupBy') || 'month';
+  const totals = carbonTransactions
+    .filter((transaction) => !departmentId || transaction.departmentId === departmentId)
+    .reduce((periods, transaction) => {
+      const period = transaction.date.slice(0, groupBy === 'year' ? 4 : 7);
+      periods[period] = (periods[period] || 0) + Number(transaction.co2Calculated);
+      return periods;
+    }, {});
+
+  return Object.entries(totals)
+    .sort(([first], [second]) => first.localeCompare(second))
+    .map(([period, totalCO2]) => ({ period, totalCO2: Number(totalCO2.toFixed(2)) }));
+}
+
+function getGoalResponse(goal) {
+  const today = new Date().toISOString().slice(0, 10);
+  const endDate = today < goal.deadline ? today : goal.deadline;
+  const currentValue = carbonTransactions
+    .filter((transaction) =>
+      transaction.departmentId === Number(goal.departmentId) &&
+      transaction.date >= goal.startDate &&
+      transaction.date <= endDate &&
+      (!goal.emissionFactorId || transaction.emissionFactorId === Number(goal.emissionFactorId))
+    )
+    .reduce(
+      (total, transaction) =>
+        total + Number(goal.emissionFactorId ? transaction.quantity : transaction.co2Calculated),
+      0
+    );
+  const progressPercent = Number(((currentValue / Number(goal.targetValue)) * 100).toFixed(2));
+  const daysRemaining = Math.round(
+    (Date.parse(`${goal.deadline}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) /
+      86400000
+  );
+  const progressStatus =
+    today < goal.startDate
+      ? 'upcoming'
+      : daysRemaining < 0
+        ? progressPercent <= 100 ? 'completed' : 'missed'
+        : progressPercent <= 100 ? 'on-track' : 'exceeded';
+
+  return {
+    ...goal,
+    departmentName: getDepartmentName(Number(goal.departmentId)),
+    emissionFactorId: goal.emissionFactorId ? Number(goal.emissionFactorId) : null,
+    targetValue: Number(goal.targetValue),
+    currentValue: Number(currentValue.toFixed(2)),
+    progressPercent,
+    progressStatus,
+    daysRemaining,
+  };
 }
 
 function getAcknowledgementStatus(employeeId) {

@@ -4,6 +4,7 @@ use ecosphere;
 set foreign_key_checks = 0;
 
 drop table if exists reward_redemptions;
+drop table if exists environmental_goals;
 drop table if exists employee_badges;
 drop table if exists policy_acknowledgements;
 drop table if exists participation;
@@ -66,6 +67,26 @@ create table carbon_transactions (
     foreign key (emission_factor_id) references emission_factors(id),
   constraint chk_carbon_quantity_positive check (quantity > 0),
   constraint chk_carbon_co2_non_negative check (co2_calculated >= 0)
+);
+
+create table environmental_goals (
+  id bigint unsigned not null auto_increment,
+  department_id bigint unsigned not null,
+  emission_factor_id bigint unsigned null,
+  metric_label varchar(180) not null,
+  target_value decimal(14,2) not null,
+  unit varchar(40) not null,
+  start_date date not null,
+  deadline date not null,
+  status enum('active', 'inactive') not null default 'active',
+  created_at datetime not null default current_timestamp,
+  primary key (id),
+  key idx_goals_department (department_id),
+  key idx_goals_factor (emission_factor_id),
+  constraint fk_goals_department foreign key (department_id) references departments(id),
+  constraint fk_goals_factor foreign key (emission_factor_id) references emission_factors(id),
+  constraint chk_goal_target_positive check (target_value > 0),
+  constraint chk_goal_dates check (deadline >= start_date)
 );
 
 create table csr_activities (

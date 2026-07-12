@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Bar,
   BarChart,
@@ -13,11 +14,14 @@ import ErrorMessage from '../components/ErrorMessage';
 import LoadingState from '../components/LoadingState';
 import PageContainer from '../components/PageContainer';
 import ScoreGauge from '../components/ScoreGauge';
+import EmissionTrendChart from '../components/EmissionTrendChart';
 import { getErrorMessage } from '../utils/errors';
 
 export default function Dashboard() {
   const [overall, setOverall] = useState(null);
   const [departmentScores, setDepartmentScores] = useState([]);
+  const [trend, setTrend] = useState([]);
+  const [atRiskGoals, setAtRiskGoals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -27,13 +31,21 @@ export default function Dashboard() {
       setError('');
 
       try {
-        const [overallResponse, departmentsResponse] = await Promise.all([
+        const [overallResponse, departmentsResponse, trendResponse, goalsResponse] = await Promise.all([
           client.get('/scores/overall'),
           client.get('/scores/departments'),
+          client.get('/carbon-transactions/trend', { params: { groupBy: 'month' } }),
+          client.get('/environmental-goals'),
         ]);
 
         setOverall(overallResponse.data);
         setDepartmentScores(departmentsResponse.data);
+        setTrend(trendResponse.data);
+        setAtRiskGoals(
+          goalsResponse.data.filter(
+            (goal) => goal.status === 'active' && ['exceeded', 'missed'].includes(goal.progressStatus)
+          )
+        );
       } catch (err) {
         setError(getErrorMessage(err, 'Unable to load dashboard scores'));
       } finally {
@@ -84,6 +96,35 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
         )}
+      </section>
+
+      <section className="dashboard-insights">
+        <section className="panel trend-panel">
+          <div className="panel-heading">
+            <h2>Emission trend</h2>
+            <p>Recorded CO2e by month</p>
+          </div>
+          <EmissionTrendChart data={trend} />
+        </section>
+
+        <section className="panel goal-alerts">
+          <div className="panel-heading">
+            <h2>Goals needing attention</h2>
+            <p>{atRiskGoals.length ? `${atRiskGoals.length} outside target` : 'All active goals are within target'}</p>
+          </div>
+          {atRiskGoals.length ? (
+            <div className="goal-alert-list">
+              {atRiskGoals.map((goal) => (
+                <div className="goal-alert" key={goal.id}>
+                  <span>{goal.departmentName}</span>
+                  <strong>{goal.metricLabel}</strong>
+                  <small>{goal.progressPercent}% · {goal.progressStatus}</small>
+                </div>
+              ))}
+            </div>
+          ) : <p className="empty-state">No goals need action right now.</p>}
+          <Link className="text-link" to="/goals">View environmental goals →</Link>
+        </section>
       </section>
     </PageContainer>
   );

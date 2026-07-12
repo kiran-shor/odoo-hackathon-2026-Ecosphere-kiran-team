@@ -18,6 +18,7 @@ const leaderboardRoutes = require("./routes/leaderboard");
 const rewardsRoutes = require("./routes/rewards");
 const scoresRoutes = require("./routes/scores");
 const reportsRoutes = require("./routes/reports");
+const goalsRoutes = require("./routes/goals");
 
 function createApp() {
   const app = express();
@@ -46,6 +47,7 @@ function createApp() {
   app.use("/api/rewards", rewardsRoutes);
   app.use("/api/scores", scoresRoutes);
   app.use("/api/reports", reportsRoutes);
+  app.use("/api/environmental-goals", goalsRoutes);
 
   // Central error handler (keeps contract shape: { message })
   app.use(errorHandler);
