@@ -63,7 +63,7 @@ export default function PendingParticipationTable({
                         disabled={isBusy}
                         onClick={() => onReject(item)}
                       >
-                        Reject
+                        {isBusy ? 'Saving...' : 'Reject'}
                       </button>
                     </div>
                   </td>

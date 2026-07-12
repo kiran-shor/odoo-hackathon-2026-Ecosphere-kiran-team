@@ -17,6 +17,7 @@ export default function CSRActivities() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [formError, setFormError] = useState('');
+  const [success, setSuccess] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -41,11 +42,13 @@ export default function CSRActivities() {
   async function createActivity(body) {
     setSubmitting(true);
     setFormError('');
+    setSuccess('');
 
     try {
       await client.post('/activities', body);
       setShowForm(false);
       await loadActivities();
+      setSuccess('Activity created successfully');
       return true;
     } catch (err) {
       setFormError(getErrorMessage(err));
@@ -83,7 +86,14 @@ export default function CSRActivities() {
         </div>
 
         {isAdmin && (
-          <button type="button" onClick={() => setShowForm((current) => !current)}>
+          <button
+            type="button"
+            disabled={submitting}
+            onClick={() => {
+              setFormError('');
+              setShowForm((current) => !current);
+            }}
+          >
             {showForm ? 'Close' : '+ New Activity'}
           </button>
         )}
@@ -103,9 +113,15 @@ export default function CSRActivities() {
         <>
           <ErrorMessage message={error} />
 
+          {success && (
+            <p className="success-message" role="status">
+              {success}
+            </p>
+          )}
+
           {activities.length === 0 ? (
             <section className="panel">
-              <p className="muted">No CSR activities are available yet.</p>
+              <p className="empty-state">No CSR activities are available yet.</p>
             </section>
           ) : (
             activities.map((activity) => (

@@ -1,13 +1,14 @@
 export default function ActivityCard({ activity }) {
   return (
-    <article className="panel">
-      <div className="panel-heading">
+    <article className="panel policy-card">
+      <div>
         <h2>{activity.title}</h2>
-        <p>{activity.category}</p>
+        <p>{activity.description}</p>
+        <div className="policy-actions">
+          <span className="status-pill complete">{activity.category}</span>
+          <span className="status-pill">{activity.pointsReward} pts</span>
+        </div>
       </div>
-
-      <p>{activity.description}</p>
-      <p className="points-pill">{activity.pointsReward} pts</p>
     </article>
   );
 }
