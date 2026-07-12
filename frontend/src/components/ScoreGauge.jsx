@@ -1,23 +1,29 @@
+import { motion, useReducedMotion } from 'framer-motion';
+
 export default function ScoreGauge({ label, value }) {
   const score = Number(value ?? 0);
   const clampedScore = Math.max(0, Math.min(100, score));
+  const reduceMotion = useReducedMotion();
 
   return (
-    <article className="score-card">
-      <div
+    <motion.article
+      className="score-card"
+      initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+    >
+      <motion.div
         className="score-ring"
-        style={{
-          background: `conic-gradient(#14b8a6 ${clampedScore * 3.6}deg, #e7eef3 0deg)`,
-        }}
+        style={{ '--score-angle': `${clampedScore * 3.6}deg` }}
         aria-label={`${label}: ${Math.round(clampedScore)}`}
       >
         <span>{Math.round(clampedScore)}</span>
-      </div>
+      </motion.div>
       <div>
         <p>{label}</p>
         <small>{getScoreLabel(clampedScore)}</small>
       </div>
-    </article>
+    </motion.article>
   );
 }
 

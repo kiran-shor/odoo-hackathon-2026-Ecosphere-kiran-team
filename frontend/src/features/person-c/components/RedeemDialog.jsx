@@ -25,7 +25,7 @@ export default function RedeemDialog({
         <button type="button" disabled={submitting} onClick={onConfirm}>
           {submitting ? 'Redeeming...' : 'Confirm'}
         </button>
-        <button type="button" disabled={submitting} onClick={onCancel}>
+        <button className="secondary-button" type="button" disabled={submitting} onClick={onCancel}>
           Cancel
         </button>
       </div>

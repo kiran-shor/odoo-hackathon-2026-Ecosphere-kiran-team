@@ -41,7 +41,7 @@ export default function Leaderboard() {
 
   return (
     <main className="page">
-      <section className="page-header">
+      <section className="page-header impact-contours">
         <div>
           <p className="eyebrow">Gamification</p>
           <h1>Leaderboard</h1>
@@ -78,7 +78,7 @@ export default function Leaderboard() {
                   return (
                     <tr
                       key={employee.id}
-                      style={isSelected ? { background: '#edf8f1' } : undefined}
+                      className={isSelected ? 'selected-row' : undefined}
                     >
                       <td>#{index + 1}</td>
                       <td>

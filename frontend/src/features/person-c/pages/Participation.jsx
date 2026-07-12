@@ -115,7 +115,7 @@ export default function Participation() {
 
   return (
     <main className="page">
-      <section className="page-header">
+      <section className="page-header impact-contours">
         <div>
           <p className="eyebrow">Participation</p>
           <h1>{isAdmin ? 'Review Participation' : 'Submit Participation'}</h1>

@@ -77,8 +77,8 @@ export default function Dashboard() {
                 <Tooltip />
                 <Bar
                   dataKey="totalScore"
-                  fill="#2f855a"
-                  radius={[6, 6, 0, 0]}
+                  fill="#256b4a"
+                  radius={[7, 7, 2, 2]}
                 />
               </BarChart>
             </ResponsiveContainer>

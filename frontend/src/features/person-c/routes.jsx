@@ -8,20 +8,24 @@ export const personCRoutes = [
     path: '/activities',
     element: <CSRActivities />,
     label: 'CSR Activities',
+    group: 'Engage',
   },
   {
     path: '/participation',
     element: <Participation />,
     label: 'Participation',
+    group: 'Engage',
   },
   {
     path: '/leaderboard',
     element: <Leaderboard />,
     label: 'Leaderboard',
+    group: 'Engage',
   },
   {
     path: '/rewards',
     element: <Rewards />,
     label: 'Rewards',
+    group: 'Engage',
   },
 ];

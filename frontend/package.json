@@ -10,19 +10,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.2.10",
+    "@fontsource-variable/source-sans-3": "^5.2.9",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@tailwindcss/vite": "^4.3.2",
     "axios": "latest",
+    "framer-motion": "^12.42.2",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest",
-    "recharts": "latest"
+    "recharts": "latest",
+    "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
+    "@eslint/js": "latest",
     "@vitejs/plugin-react": "latest",
     "eslint": "latest",
-    "vite": "latest",
-    "@eslint/js": "latest",
     "eslint-plugin-react-hooks": "latest",
     "eslint-plugin-react-refresh": "latest",
-    "globals": "latest"
+    "globals": "latest",
+    "vite": "latest"
   }
 }

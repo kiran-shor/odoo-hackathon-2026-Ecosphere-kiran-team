@@ -59,6 +59,7 @@ export default function PendingParticipationTable({
                         {isBusy ? 'Saving...' : 'Approve'}
                       </button>
                       <button
+                        className="danger-button"
                         type="button"
                         disabled={isBusy}
                         onClick={() => onReject(item)}

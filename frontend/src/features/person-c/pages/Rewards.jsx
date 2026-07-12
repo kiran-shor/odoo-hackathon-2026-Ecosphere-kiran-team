@@ -77,7 +77,7 @@ export default function Rewards() {
 
   return (
     <main className="page">
-      <section className="page-header">
+      <section className="page-header impact-contours">
         <div>
           <p className="eyebrow">Rewards</p>
           <h1>Rewards</h1>

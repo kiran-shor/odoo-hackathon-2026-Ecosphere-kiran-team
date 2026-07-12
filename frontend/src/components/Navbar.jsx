@@ -1,68 +1,136 @@
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import ApiModeToggle from './ApiModeToggle';
 import EmployeeSwitcher from './EmployeeSwitcher';
 import { useUser } from '../context/UserContext';
 
-const routeAccents = {
-  '/': 'D',
-  '/carbon': 'C',
-  '/policies': 'G',
-  '/reports': 'R',
-  '/activities': 'A',
-  '/participation': 'P',
-  '/leaderboard': 'L',
-  '/rewards': 'W',
-};
+const groupOrder = ['Overview', 'Measure', 'Govern', 'Engage'];
 
 export default function Navbar({ routes }) {
   const { currentEmployee, isAdmin, setIsAdmin } = useUser();
+  const [isOpen, setIsOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const groupedRoutes = useMemo(
+    () =>
+      groupOrder
+        .map((group) => ({
+          group,
+          routes: routes.filter((route) => route.group === group),
+        }))
+        .filter(({ routes: groupRoutes }) => groupRoutes.length),
+    [routes]
+  );
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const closeOnEscape = (event) => event.key === 'Escape' && setIsOpen(false);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [isOpen]);
 
   return (
-    <aside className="app-sidebar">
-      <div className="brand">
-        <span className="brand-mark">E</span>
-        <div>
-          <strong>EcoSphere Lite</strong>
-          <span>ESG operations hub</span>
-        </div>
-      </div>
+    <>
+      <header className="mobile-header">
+        <Brand />
+        <button
+          className="menu-button secondary-button"
+          type="button"
+          aria-expanded={isOpen}
+          aria-controls="primary-navigation"
+          onClick={() => setIsOpen((open) => !open)}
+        >
+          <span aria-hidden="true">{isOpen ? '×' : '☰'}</span>
+          <span className="sr-only">{isOpen ? 'Close menu' : 'Open menu'}</span>
+        </button>
+      </header>
 
-      <div className="sidebar-section">
-        <span className="sidebar-label">Workspace</span>
-        <nav className="nav-links" aria-label="Main navigation">
-          {routes.map((route) => (
-            <NavLink
-              key={route.path}
-              to={route.path}
-              className={({ isActive }) => (isActive ? 'active' : undefined)}
-              end={route.path === '/'}
-            >
-              <span className="nav-icon">{routeAccents[route.path] || 'E'}</span>
-              <span>{route.label}</span>
-            </NavLink>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.button
+            className="nav-backdrop"
+            aria-label="Close navigation"
+            type="button"
+            initial={reduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <aside
+        id="primary-navigation"
+        className={`app-sidebar ${isOpen ? 'is-open' : ''}`}
+      >
+        <Brand />
+
+        <nav className="nav-groups" aria-label="Main navigation">
+          {groupedRoutes.map(({ group, routes: groupRoutes }) => (
+            <section className="sidebar-section" key={group}>
+              <span className="sidebar-label">{group}</span>
+              <div className="nav-links">
+                {groupRoutes.map((route) => (
+                  <NavLink
+                    key={route.path}
+                    to={route.path}
+                    className={({ isActive }) => (isActive ? 'active' : undefined)}
+                    end={route.path === '/'}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span className="nav-marker" aria-hidden="true" />
+                    <span>{route.label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </section>
           ))}
         </nav>
-      </div>
 
-      <div className="header-tools">
-        <span className="sidebar-label">Controls</span>
-        <ApiModeToggle />
-        <EmployeeSwitcher />
-        <label className="admin-toggle">
-          <input
-            type="checkbox"
-            checked={isAdmin}
-            onChange={(event) => setIsAdmin(event.target.checked)}
-          />
-          <span>Admin</span>
-        </label>
-        {currentEmployee && (
-          <span className="points-pill">
-            <strong>{currentEmployee.points ?? 0}</strong>
-            <span>points</span>
-          </span>
-        )}
+        <div className="header-tools">
+          <div className="profile-summary">
+            <span className="profile-avatar" aria-hidden="true">
+              {currentEmployee?.name?.charAt(0) || 'E'}
+            </span>
+            <span>
+              <strong>{currentEmployee?.name || 'EcoSphere user'}</strong>
+              <small>{isAdmin ? 'Admin workspace' : 'Employee workspace'}</small>
+            </span>
+            {currentEmployee && (
+              <span className="points-pill">
+                <strong>{currentEmployee.points ?? 0}</strong>
+                <span>pts</span>
+              </span>
+            )}
+          </div>
+          <EmployeeSwitcher />
+          <div className="utility-row">
+            <ApiModeToggle />
+            <label className="admin-toggle">
+              <input
+                type="checkbox"
+                checked={isAdmin}
+                onChange={(event) => setIsAdmin(event.target.checked)}
+              />
+              <span>Admin mode</span>
+            </label>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+function Brand() {
+  return (
+    <div className="brand">
+      <span className="brand-mark" aria-hidden="true">
+        <span />
+      </span>
+      <div>
+        <strong>EcoSphere</strong>
+        <span>ESG field atlas</span>
       </div>
-    </aside>
+    </div>
   );
 }
