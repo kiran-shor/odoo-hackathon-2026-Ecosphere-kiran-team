@@ -31,6 +31,10 @@ button {
   padding: 0.75rem 1rem;
 }
 
+button:not(:disabled):hover {
+  background: #276f4b;
+}
+
 button:disabled,
 input:disabled,
 select:disabled {
@@ -140,8 +144,13 @@ label textarea {
 .page-header {
   align-items: end;
   display: flex;
+  gap: 1rem;
   justify-content: space-between;
   margin-bottom: 1.5rem;
+}
+
+.page-actions {
+  flex: 0 0 auto;
 }
 
 .eyebrow {
@@ -184,6 +193,11 @@ h2 {
 
 .panel-heading {
   margin-bottom: 1rem;
+}
+
+.empty-state {
+  color: #68776d;
+  margin-bottom: 0;
 }
 
 .score-grid {
@@ -233,6 +247,85 @@ h2 {
   gap: 0.75rem;
 }
 
+.form-panel {
+  align-content: start;
+}
+
+label textarea {
+  resize: vertical;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  min-width: 720px;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e4ece7;
+  padding: 0.8rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: #34463b;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.success-message {
+  background: #edf8f1;
+  border: 1px solid #b8dfc6;
+  border-radius: 6px;
+  color: #1f6f48;
+  margin-bottom: 0;
+  padding: 0.85rem 1rem;
+}
+
+.policy-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.policy-card {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr auto;
+}
+
+.policy-card p {
+  color: #46574d;
+  margin-bottom: 0;
+}
+
+.policy-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.status-pill {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  color: #9a3412;
+  padding: 0.45rem 0.7rem;
+  white-space: nowrap;
+}
+
+.status-pill.complete {
+  background: #edf8f1;
+  border-color: #b8dfc6;
+  color: #1f6f48;
+}
+
 .chart-frame {
   min-height: 280px;
 }
@@ -271,12 +364,19 @@ h2 {
 @media (max-width: 900px) {
   .app-header,
   .two-column,
-  .score-grid {
+  .score-grid,
+  .policy-card {
     grid-template-columns: 1fr;
   }
 
   .nav-links,
-  .header-tools {
+  .header-tools,
+  .policy-actions {
     justify-content: flex-start;
+  }
+
+  .page-header {
+    align-items: start;
+    flex-direction: column;
   }
 }
