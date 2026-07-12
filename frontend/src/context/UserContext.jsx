@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import client from '../api/client';
 
 const UserContext = createContext(null);
@@ -9,29 +15,44 @@ export function UserProvider({ children }) {
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  async function loadEmployees() {
-    const { data } = await client.get('/employees');
-    setEmployees(data);
+  const loadEmployees = useCallback(async () => {
+    try {
+      const { data } = await client.get('/employees');
+      setEmployees(data);
 
-    if (!currentEmployeeId && data.length > 0) {
-      setCurrentEmployeeId(data[0].id);
+      setCurrentEmployeeId((selectedId) => selectedId || data[0]?.id || null);
+    } catch (err) {
+      console.error(err);
     }
-  }
-
-  async function refreshCurrentEmployee() {
-    if (!currentEmployeeId) return;
-
-    const { data } = await client.get(`/employees/${currentEmployeeId}`);
-    setCurrentEmployee(data);
-  }
-
-  useEffect(() => {
-    loadEmployees().catch(console.error);
   }, []);
 
-  useEffect(() => {
-    refreshCurrentEmployee().catch(console.error);
+  const refreshCurrentEmployee = useCallback(async () => {
+    if (!currentEmployeeId) return;
+
+    try {
+      const { data } = await client.get(`/employees/${currentEmployeeId}`);
+      setCurrentEmployee(data);
+    } catch (err) {
+      console.error(err);
+      setCurrentEmployee(null);
+    }
   }, [currentEmployeeId]);
+
+  useEffect(() => {
+    async function loadInitialEmployees() {
+      await loadEmployees();
+    }
+
+    loadInitialEmployees();
+  }, [loadEmployees]);
+
+  useEffect(() => {
+    async function loadCurrentEmployee() {
+      await refreshCurrentEmployee();
+    }
+
+    loadCurrentEmployee();
+  }, [refreshCurrentEmployee]);
 
   return (
     <UserContext.Provider
