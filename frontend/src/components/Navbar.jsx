@@ -129,7 +129,7 @@ function Brand() {
       </span>
       <div>
         <strong>EcoSphere</strong>
-        <span>ESG field atlas</span>
+        <span>By Green Matters</span>
       </div>
     </div>
   );

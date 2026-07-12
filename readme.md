@@ -1,5 +1,7 @@
 EcoSphere Lite
 
+Built by team **Green Matters**.
+
 Backend branch contains the Node.js, Express, and MySQL API for the hackathon
 project.
 

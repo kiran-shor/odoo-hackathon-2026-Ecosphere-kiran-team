@@ -118,7 +118,6 @@ button:disabled, input:disabled, select:disabled { cursor: not-allowed; opacity:
   background-image: repeating-radial-gradient(ellipse at 92% 35%, transparent 0 18px, rgba(37,107,74,.12) 19px 20px, transparent 21px 34px);
   content: ""; height: 240%; opacity: .75; position: absolute; right: -18%; top: -68%; transform: rotate(-9deg); width: 58%;
 }
-.impact-contours::after { background: #d99a32; border-radius: 999px; content: ""; height: 3px; position: absolute; right: 7%; top: 52%; transform: rotate(-7deg); width: 18%; }
 .eyebrow { color: #256b4a; font-family: "IBM Plex Mono", monospace; font-size: .68rem; font-weight: 500; letter-spacing: .12em; margin: 0 0 .65rem; text-transform: uppercase; }
 h1, h2, p { margin-top: 0; }
 h1 { color: #17352c; font-family: "Bricolage Grotesque Variable", sans-serif; font-size: clamp(2.15rem,5vw,4rem); font-variation-settings: "wdth" 88; font-weight: 720; letter-spacing: -.045em; line-height: .95; margin: 0; }
@@ -227,7 +226,6 @@ td:is(:first-child,:last-child) { font-variant-numeric: tabular-nums; }
   .page { padding: 1rem .85rem 2.5rem; }
   .page-header { align-items: start; flex-direction: column; min-height: 9.5rem; }
   .impact-contours::before { right: -38%; width: 90%; }
-  .impact-contours::after { right: 9%; width: 28%; }
   .page-actions { width: 100%; }
   .page-actions button { width: 100%; }
   .score-grid, .two-column, .policy-card, .goals-grid, .goal-form, .goal-toolbar { grid-template-columns: 1fr; }
