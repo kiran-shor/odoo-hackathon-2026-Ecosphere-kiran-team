@@ -4,11 +4,19 @@ export default function RewardCard({
   onRedeem,
   submitting,
 }) {
+  const hasEmployee = employeePoints !== null && employeePoints !== undefined;
   const cannotRedeem =
-    employeePoints === null ||
-    employeePoints === undefined ||
+    !hasEmployee ||
     employeePoints < reward.pointsRequired ||
     reward.stock === 0;
+  const reason =
+    !hasEmployee
+      ? 'Select an employee'
+      : reward.stock === 0
+        ? 'Out of stock'
+        : employeePoints < reward.pointsRequired
+          ? 'Not enough points'
+          : '';
 
   return (
     <article className="panel policy-card">
@@ -17,9 +25,12 @@ export default function RewardCard({
         <p>{reward.description}</p>
         <div className="policy-actions">
           <span className="status-pill">{reward.pointsRequired} pts</span>
-          <span className={reward.stock === 0 ? 'status-pill' : 'status-pill complete'}>
+          <span
+            className={reward.stock === 0 ? 'status-pill' : 'status-pill complete'}
+          >
             {reward.stock === 0 ? 'Out of stock' : `${reward.stock} left`}
           </span>
+          {reason && <span className="muted">{reason}</span>}
         </div>
       </div>
 

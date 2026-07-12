@@ -92,6 +92,12 @@ export default function Rewards() {
         </p>
       )}
 
+      {!currentEmployee && (
+        <section className="panel">
+          <p className="empty-state">Select an employee before redeeming rewards.</p>
+        </section>
+      )}
+
       <RedeemDialog
         employeePoints={currentEmployee?.points}
         onCancel={() => setSelectedReward(null)}

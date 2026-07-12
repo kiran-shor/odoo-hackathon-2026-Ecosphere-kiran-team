@@ -81,7 +81,14 @@ export default function Leaderboard() {
                       style={isSelected ? { background: '#edf8f1' } : undefined}
                     >
                       <td>#{index + 1}</td>
-                      <td>{employee.name}</td>
+                      <td>
+                        <div className="policy-actions">
+                          <span>{employee.name}</span>
+                          {isSelected && (
+                            <span className="status-pill complete">Selected</span>
+                          )}
+                        </div>
+                      </td>
                       <td>
                         {employee.departmentName ||
                           `Department #${employee.departmentId}`}
